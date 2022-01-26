@@ -1,0 +1,5 @@
+/* Make body fit screen */
+body {
+    margin: 0;
+    overflow: hidden; /* Prevent scrollbars */
+}
