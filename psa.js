@@ -55,7 +55,12 @@
             'proportion to the actual danger, and can last a long time. Anxiety disorders include panic',
             'disorder, obsessive-compulsive disorder (OCD), phobias, or generalized anxiety disorder.',
         ],
-        nextprompt: 'Press any key to continue'
+        nextprompt: 'Press any key to continue',
+        stats: [
+            '19.1% of adults in the US are affected',
+            '36.9% of those adults sought treatment',
+            '18 million adults are stuggling on their own',
+        ]
     };
 
     const draw_text = {
@@ -92,7 +97,34 @@
             ctx.font = scaledheight(24) + 'px monospace';
             ctx.fillText(strings.nextprompt, canvas.width / 2, canvas.height * 0.975);
             ctx.textAlign = 'start';
-        }
+        },
+        stats1: (opacity) => {
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+            ctx.textAlign = 'center';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.fillText(strings.stats[0], canvas.width * 0.3, canvas.height * 0.2);
+
+            ctx.textAlign = 'start';
+        },
+        stats2: (opacity) => {
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+            ctx.textAlign = 'center';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.fillText(strings.stats[1], canvas.width * 0.5, canvas.height * 0.5);
+
+            ctx.textAlign = 'start';
+        },
+        stats3: (opacity) => {
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+            ctx.textAlign = 'center';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.fillText(strings.stats[2], canvas.width * 0.7, canvas.height * 0.8);
+
+            ctx.textAlign = 'start';
+        },
     };
 
     const animations = [
@@ -126,6 +158,42 @@
                 draw_text.defn(1 - progress); // Invert, since its fade out
             }
         },
+        { // Fade in stats #1
+            duration: 2000, // ms
+            update: (progress) => {
+                state.background_style = '#000000';
+            },
+            draw: (progress) => {
+                draw_text.stats1(progress);
+            }
+        },
+        { // Fade in stats #2
+            duration: 2000, // ms
+            update: (progress) => {
+                state.background_style = '#000000';
+            },
+            draw: (progress) => {
+                draw_text.stats1(1);
+                draw_text.stats2(progress);
+            }
+        },
+        { // Fade in stats #3
+            duration: 2000, // ms
+            update: (progress) => {
+                state.background_style = '#000000';
+            },
+            draw: (progress) => {
+                draw_text.stats1(1);
+                draw_text.stats2(1);
+                draw_text.stats3(progress);
+            }
+        },
+        {
+            start_paused:true,
+            duration:1,
+            update:()=>{},
+            draw:()=>{draw_text.stats1(1);draw_text.stats2(1);draw_text.stats3(1)},
+        },
         { // Ending
             duration: Infinity, // Does not end
             update: () => {
@@ -157,6 +225,7 @@
             // Draw FPS counter
             ctx.fillStyle = 'rgb(255, 255, 255)';
             ctx.font = scaledheight(48) + 'px monospace';
+            ctx.textAlign = 'start';
             ctx.fillText('FPS: ' + state.fps.fps, scaledwidth(25), canvas.height - scaledheight(25));
         }
     };
