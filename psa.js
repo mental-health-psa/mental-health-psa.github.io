@@ -15,6 +15,7 @@
 
     const debug = args.get('debug') || false;
     const cinematic = args.get('cinematic') || false;
+    const starting_slide = args.get('start') || -1;
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
@@ -40,7 +41,7 @@
         mini_progress: 0,
         pause_count: 0,
         current_animation: undefined,
-        background_style: '#00ffff',
+        background_style: '#000',
     };
 
     const strings = {
@@ -59,7 +60,18 @@
         stats: [
             '19.1% of adults in the US are affected',
             '36.9% of those adults sought treatment',
-            '18 million adults are stuggling on their own',
+            '18 million adults are struggling on their own',
+            "They don't have to be alone",
+        ],
+        symptoms: [
+            'Symptoms of Anxiety Disorder',
+            '\u2022 Stress that is out of proportion to the impact of the event',
+            '\u2022 Feelings of panic, doom, and danger',
+            '\u2022 Cold, sweaty, numb, or tingling hands or feet',
+        ],
+        whattodo: [
+            'What do you do if you have an anxiety disorder?',
+            'Seek treatment!'
         ]
     };
 
@@ -92,7 +104,7 @@
         },
         nextprompt: () => {
             if (cinematic) return;
-            ctx.fillStyle = '#ffffff';
+            ctx.fillStyle = '#aaaaaa';
             ctx.textAlign = 'center';
             ctx.font = scaledheight(24) + 'px monospace';
             ctx.fillText(strings.nextprompt, canvas.width / 2, canvas.height * 0.975);
@@ -112,7 +124,7 @@
             ctx.textAlign = 'center';
             ctx.font = scaledheight(36) + 'px serif';
 
-            ctx.fillText(strings.stats[1], canvas.width * 0.5, canvas.height * 0.5);
+            ctx.fillText(strings.stats[1], canvas.width * 0.5, canvas.height * 0.4);
 
             ctx.textAlign = 'start';
         },
@@ -121,19 +133,144 @@
             ctx.textAlign = 'center';
             ctx.font = scaledheight(36) + 'px serif';
 
-            ctx.fillText(strings.stats[2], canvas.width * 0.7, canvas.height * 0.8);
+            ctx.fillText(strings.stats[2], canvas.width * 0.7, canvas.height * 0.6);
 
             ctx.textAlign = 'start';
         },
+        stats4: (opacity) => {
+            ctx.fillStyle = 'rgba(255, 255, 255, ' + opacity + ')';
+            ctx.textAlign = 'center';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.fillText(strings.stats[3], canvas.width * 0.5, canvas.height * 0.8);
+
+            ctx.textAlign = 'start';
+        },
+        symptomtitle: (progress) => {
+            ctx.fillStyle = '#fff';
+            ctx.textAlign = 'center';
+            ctx.font = 'bold ' + scaledheight(48) + 'px serif';
+
+            let width = ctx.measureText(strings.symptoms[0]).width;
+            ctx.fillText(strings.symptoms[0], (canvas.width / 2 + width) * progress - width, canvas.height * 0.2);
+
+            ctx.textAlign = 'start';
+        },
+        symptom1: (progress) => {
+            ctx.fillStyle = '#fff';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.save();
+            let height = ctx.measureText(strings.symptoms[1]).fontBoundingBoxAscent
+            ctx.translate(canvas.width * 0.3, canvas.height * 0.35 - height + height * progress);
+            ctx.scale(1, progress);
+
+            ctx.fillText(strings.symptoms[1], 0, 0);
+
+            ctx.restore();
+
+            ctx.textAlign = 'start';
+        },
+        symptom2: (progress) => {
+            ctx.fillStyle = '#fff';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.save();
+            let height = ctx.measureText(strings.symptoms[2]).fontBoundingBoxAscent
+            ctx.translate(canvas.width * 0.3, canvas.height * 0.45 - height + height * progress);
+            ctx.scale(1, progress);
+
+            ctx.fillText(strings.symptoms[2], 0, 0);
+
+            ctx.restore();
+
+            ctx.textAlign = 'start';
+        },
+        symptom3: (progress) => {
+            ctx.fillStyle = '#fff';
+            ctx.font = scaledheight(36) + 'px serif';
+
+            ctx.save();
+            let height = ctx.measureText(strings.symptoms[3]).fontBoundingBoxAscent
+            ctx.translate(canvas.width * 0.3, canvas.height * 0.55 - height + height * progress);
+            ctx.scale(1, progress);
+
+            ctx.fillText(strings.symptoms[3], 0, 0);
+
+            ctx.restore();
+
+            ctx.textAlign = 'start';
+        },
+        whattodo: (progress) => {
+            // Gradient in
+
+            progress *= 1.2;
+
+            ctx.font = scaledheight(48) + 'px serif';
+            ctx.textAlign = 'center';
+
+            const width = ctx.measureText(strings.whattodo[0]).width;
+            const gradient = ctx.createLinearGradient(canvas.width / 2 - width / 2, canvas.height * 0.3, canvas.width / 2 + width / 2, canvas.height * 0.3);
+            for (let i = 0; i <= 120; i++) {
+                if (Math.round(progress*100)/100 == (i+5)/100)
+	                gradient.addColorStop(Math.min(i/100,1), '#fff')
+                 else if (Math.round(progress*100)/100 == (i-5)/100)
+                    gradient.addColorStop(Math.min(i/100,1), '#000')
+                //gradient.addColorStop(i/100, progress >= i/100 ? '#fff' : '#000');
+            }
+            ctx.fillStyle = gradient;
+
+            ctx.fillText(strings.whattodo[0], canvas.width / 2, canvas.height * 0.3);
+
+            ctx.textAlign = 'start';
+        },
+        seektreatment: (progress) => {
+            // Rainbow gradient in
+
+            progress *= 1.2;
+
+            ctx.font = scaledheight(48) + 'px serif';
+            ctx.textAlign = 'center';
+
+            const width = ctx.measureText(strings.whattodo[1]).width;
+            const gradient = ctx.createLinearGradient(canvas.width / 2 - width / 2, canvas.height * 0.5, canvas.width / 2 + width / 2, canvas.height * 0.5);
+            gradient.addColorStop(0, 'hsl(0, 100%, 50%)');
+            gradient.addColorStop(1/10, 'hsl(30, 100%, 50%)');
+            gradient.addColorStop(2/10, 'hsl(60, 100%, 50%)');
+            gradient.addColorStop(3/10, 'hsl(90, 100%, 50%)');
+            gradient.addColorStop(4/10, 'hsl(120, 100%, 50%)');
+            gradient.addColorStop(5/10, 'hsl(150, 100%, 50%)');
+            gradient.addColorStop(6/10, 'hsl(180, 100%, 50%)');
+            gradient.addColorStop(7/10, 'hsl(210, 100%, 50%)');
+            gradient.addColorStop(8/10, 'hsl(240, 100%, 50%)');
+            gradient.addColorStop(9/10, 'hsl(270, 100%, 50%)');
+            gradient.addColorStop(1, 'hsl(300, 100%, 50%)');
+            ctx.fillStyle = gradient;
+
+            ctx.fillText(strings.whattodo[1], canvas.width / 2, canvas.height * 0.5);
+
+            ctx.textAlign = 'start';
+        }
     };
 
     const animations = [
-        { // Fade in definition of anxiety disorder
-            duration: 1500, // milliseconds
-            update: (progress) => {
+        { // Give extra time if in cinematic mode
+            duration: cinematic ? 5000 : 0,
+            draw: (progress) => {
                 // progress = value between 0 and 1 where 1 == complete
-                state.background_style = '#000000';
-            },
+                ctx.fillStyle = '#fff';
+                ctx.textAlign = 'center';
+                ctx.font = scaledheight(48) + 'px monospace';
+
+                ctx.fillText(progress > 0.8 ? '1' : progress > 0.6 ? '2' : progress > 0.4 ? '3' : progress > 0.2 ? '4' : '5', canvas.width / 2, canvas.height / 2)
+            }
+        },
+        { // Extra pause
+            duration: cinematic ? 3000 : 0,
+            draw:()=>{}
+        },
+        { // Fade in definition of anxiety disorder
+            duration: 2500, // milliseconds
             draw: (progress) => {
                 draw_text.defn(progress);
             },
@@ -141,37 +278,29 @@
         { // Show definition of anxiety disorder
             duration: cinematic ? 30000 : 1, // 30s if cinematic, otherwise until keypress
             start_paused: true,
-            update: () => {
-                state.background_style = '#000000';
-            },
             draw: () => {
                 draw_text.defn(1);
                 draw_text.nextprompt();
             }
         },
         { // Fade out definition
-            duration: 1500, // ms
-            update: (progress) => {
-                state.background_style = '#000000';
-            },
+            duration: 2000, // ms
             draw: (progress) => {
                 draw_text.defn(1 - progress); // Invert, since its fade out
             }
         },
+        { // Wait a bit
+            duration: 1000, // ms
+            draw: ()=>{}
+        },
         { // Fade in stats #1
             duration: 2000, // ms
-            update: (progress) => {
-                state.background_style = '#000000';
-            },
             draw: (progress) => {
                 draw_text.stats1(progress);
             }
         },
         { // Fade in stats #2
             duration: 2000, // ms
-            update: (progress) => {
-                state.background_style = '#000000';
-            },
             draw: (progress) => {
                 draw_text.stats1(1);
                 draw_text.stats2(progress);
@@ -179,20 +308,148 @@
         },
         { // Fade in stats #3
             duration: 2000, // ms
-            update: (progress) => {
-                state.background_style = '#000000';
-            },
             draw: (progress) => {
                 draw_text.stats1(1);
                 draw_text.stats2(1);
                 draw_text.stats3(progress);
             }
         },
+        { // Keep stats on screen
+            duration: cinematic ? 3000 : 1, // ms
+            start_paused: true,
+            draw: () => {
+                draw_text.stats1(1);
+                draw_text.stats2(1);
+                draw_text.stats3(1);
+                draw_text.nextprompt();
+            }
+        },
+        { // Fade out some stats
+            duration: 3000, // ms
+            draw: (progress) => {
+                draw_text.stats1(1-progress); // invert
+                draw_text.stats2(1-progress);
+                draw_text.stats3(1);
+            }
+        },
+        { // Fade in last line
+            duration: 3000, // ms
+            draw: (progress) => {
+                draw_text.stats3(1);
+                draw_text.stats4(progress);
+            }
+        },
+        { // Pause
+            duration: cinematic ? 3500 : 1, // ms
+            start_paused: true,
+            draw: (progress) => {
+                draw_text.stats3(1);
+                draw_text.stats4(1);
+                draw_text.nextprompt();
+            }
+        },
+        { // Fade out everything
+            duration: 5000,
+            draw: (progress) => {
+                draw_text.stats3(1-progress);
+                draw_text.stats4(1-progress);
+            }
+        },
+        { // Slight delay
+            duration: 2000,
+            draw: ()=>{}
+        },
+        { // Show symptoms
+            duration: 1000,
+            draw: (progress) => {
+                draw_text.symptomtitle(progress);
+            }
+        },
+        { // Slight cooldown
+            duration: 1000,
+            draw: ()=>{
+                draw_text.symptomtitle(1);
+            }
+        },
         {
-            start_paused:true,
-            duration:1,
-            update:()=>{},
-            draw:()=>{draw_text.stats1(1);draw_text.stats2(1);draw_text.stats3(1)},
+            duration: 500,
+            draw: (progress) => {
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(progress);
+            }
+        },
+        { // Another cooldown
+            duration: 1000,
+            draw: ()=>{
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(1);
+            }
+        },
+        {
+            duration: 500,
+            draw: (progress) => {
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(1);
+                draw_text.symptom2(progress);
+            }
+        },
+        {
+            duration: 1000,
+            draw: ()=>{
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(1);
+                draw_text.symptom2(1);
+            }
+        },
+        {
+            duration: 500,
+            draw: (progress) => {
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(1);
+                draw_text.symptom2(1);
+                draw_text.symptom3(progress);
+            }
+        },
+        { // Give audience time to read
+            duration: cinematic ? 12000 : 1,
+            start_paused: true,
+            draw: (progress) => {
+                draw_text.symptomtitle(1);
+                draw_text.symptom1(1);
+                draw_text.symptom2(1);
+                draw_text.symptom3(1);
+                draw_text.nextprompt();
+            }
+        },
+        { // Flop out
+            duration: 500,
+            draw: (progress) => {
+                draw_text.symptomtitle(1+progress); // continue out
+                draw_text.symptom1(Math.max(0, 1-progress*2));
+                draw_text.symptom2(Math.max(0, 1-progress*2));
+                draw_text.symptom3(Math.max(0, 1-progress*2));
+            }
+        },
+        { // Wait 1s
+            duration: 500,
+            draw: ()=>{}
+        },
+        { // What do you do if you have disorder
+            duration: 2000,
+            draw: (progress) => {
+                draw_text.whattodo(progress);
+            }
+        },
+        { // Give time to read
+            duration: 3000,
+            draw: () => {draw_text.whattodo(1);}
+        },
+        { // Get treatment
+            duration: 1500,
+            draw: (progress) => {
+                draw_text.whattodo(1);
+                draw_text.seektreatment(progress);
+            }
         },
         { // Ending
             duration: Infinity, // Does not end
@@ -238,7 +495,10 @@
         state.dt = deltatime;
 
         // Update animation progress
-        if (state.animation_progress >= 1 || !state.current_animation) {
+        if (state.animation_progress >= 1 || !state.current_animation || (state.current_slide == -1 && starting_slide != -1)) {
+            if (state.current_slide == -1 && starting_slide != -1) {
+                state.current_slide = starting_slide - 1;
+            }
             state.current_slide += 1;
             state.current_animation = animations[state.current_slide];
             state.animation_raw_progress = 0;
@@ -250,7 +510,8 @@
             state.animation_raw_progress += deltatime;
         state.animation_progress = Math.min(state.animation_raw_progress / state.current_animation.duration, 1);
 
-        state.current_animation.update(state.animation_progress);
+        if (state.current_animation.update)
+            state.current_animation.update(state.animation_progress);
 
         if (debug) {
             state.fps.tickingfps += 1;
