@@ -17,7 +17,7 @@
     const cinematic = args.get('cinematic') || false;
     const starting_slide = args.get('start') || -1;
     const author_name = args.get('author') || 'Pipythonmc'; // Please do not change the author name and try to pass this off as your own. Just don't.
-    const images = args.get('images') || false; // Images are ugly and don't really fit :(
+    const images = !args.get('noimages'); // Turns out the images don't actually look that bad
 
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
