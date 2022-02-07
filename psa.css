@@ -4,3 +4,7 @@ body {
     overflow: hidden; /* Prevent scrollbars */
     cursor: none;
 }
+
+img, svg {
+    display: none; /* These are assets that will be rendered in canvas later */
+}
